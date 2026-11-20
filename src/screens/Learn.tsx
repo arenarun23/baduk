@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { lessons } from '../data/lessons';
 import { StepRunner } from '../components/StepRunner';
 import { Teacher } from '../components/Teacher';
 import { saveProgress, type Progress } from '../lib/progress';
 import { sounds } from '../lib/sound';
 import { go } from '../router';
+import { logEvent } from '../lib/log';
 
 export function LessonList({ progress }: { progress: Progress }) {
   const nextId = lessons.find((l) => !progress.lessonsDone.includes(l.id))?.id;
@@ -37,6 +38,9 @@ export function LessonScreen({ id, onProgress }: { id: string; onProgress: (p: P
   const lesson = lessons[index];
   const [stepIdx, setStepIdx] = useState(0);
   const [complete, setComplete] = useState(false);
+  useEffect(() => {
+    if (lesson) logEvent('start', `lesson-${lesson.id}`);
+  }, [lesson]);
 
   if (!lesson) return <p>레슨을 찾을 수 없어요.</p>;
   const next = lessons[index + 1];
@@ -86,6 +90,7 @@ export function LessonScreen({ id, onProgress }: { id: string; onProgress: (p: P
         onNext={() => {
           if (!last) return setStepIdx(stepIdx + 1);
           sounds.lessonDone();
+          logEvent('finish', `lesson-${lesson.id}`);
           onProgress(
             saveProgress((p) => ({
               ...p,

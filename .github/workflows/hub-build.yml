@@ -1,0 +1,53 @@
+# main 에 push 되면: 시험 → 빌드 → 빌드 결과(dist)를 `hub` 브랜치에 올림 → AIEDU 허브 즉시 재배포.
+# AIEDU 허브는 정적 파일만 가져오므로(apps.json 의 "ref": "hub"), 빌드가 필요한 이 앱은 결과물을 hub 브랜치로 따로 둔다.
+# 선택: 이 저장소 Settings > Secrets and variables > Actions 에 HUB_DEPLOY_HOOK (없으면 허브의 5분 주기 확인으로 갱신)
+# 보안: 외부 액션은 커밋 해시로 고정, 토큰은 URL·인자 대신 헤더로 전달, 시간 제한.
+name: Build for AIEDU hub
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: hub-build
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - name: Publish dist to hub branch
+        env:
+          TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SRC_SHA: ${{ github.sha }}
+        run: |
+          cd dist
+          # hub 브랜치는 Vercel 미리보기 배포를 하지 않게 (허브 빌드는 vercel.json 을 자동으로 뺀다)
+          echo '{"git":{"deploymentEnabled":false}}' > vercel.json
+          git init -q -b hub
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "build: ${SRC_SHA}"
+          AUTH=$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)
+          git -c http.https://github.com/.extraheader="AUTHORIZATION: basic ${AUTH}" push -q -f "https://github.com/${REPO}.git" hub
+      - name: Notify AIEDU hub
+        env:
+          HOOK: ${{ secrets.HUB_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::warning::HUB_DEPLOY_HOOK secret 이 없어 허브 즉시 재배포를 건너뜁니다(허브의 5분 주기 확인으로 갱신)."
+            exit 0
+          fi
+          curl -fsS --max-time 30 --retry 2 -X POST "$HOOK"

@@ -44,7 +44,7 @@ button {
 .app {
   max-width: 760px;
   margin: 0 auto;
-  padding: 0 16px 40px;
+  padding: 0 16px 12px;
 }
 
 /* ---------- 상단 ---------- */
@@ -52,7 +52,8 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 0 6px;
+  /* 왼쪽 위 52×52px 는 AIEDU 허브 복귀 아이콘 자리 */
+  padding: 10px 0 4px 40px;
   gap: 8px;
 }
 .logo {
@@ -82,7 +83,7 @@ button {
 .screen {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   animation: fade-in 0.3s ease;
 }
 .screen.center {
@@ -173,8 +174,12 @@ button {
   transition: transform 0.1s;
 }
 .btn:active:not(:disabled) {
-  transform: translateY(3px);
-  box-shadow: 0 3px 0 rgba(120, 80, 30, 0.18);
+  transform: translateY(5px);
+  box-shadow: 0 1px 0 rgba(120, 80, 30, 0.18);
+  transition-duration: 0s;
+}
+.btn.primary:active:not(:disabled) {
+  box-shadow: 0 1px 0 var(--primary-dark);
 }
 .btn:disabled {
   opacity: 0.45;
@@ -352,9 +357,18 @@ button {
 /* ---------- 바둑판 ---------- */
 .board-wrap {
   position: relative;
-  width: 100%;
-  max-width: min(560px, 100%);
+  /* 바둑판은 화면 높이에 맞춰 줄어들어 한 화면에 들어오게 */
+  width: min(560px, 100%, max(var(--min-board, 240px), calc(100dvh - var(--reserve, 340px))));
   margin: 0 auto;
+}
+.step {
+  --reserve: 350px;
+}
+.step:has(.choices) {
+  --reserve: 420px;
+}
+.game {
+  --reserve: 330px;
 }
 .board {
   display: block;
@@ -624,4 +638,174 @@ button {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* ================================================================
+   한 화면에 맞추기 (AIEDU 규칙: 태블릿 가로·노트북·폰에서 스크롤 없이)
+   ================================================================ */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 좁은 폰 세로 */
+@media (max-width: 520px) {
+  .logo { font-size: 21px; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .logo-stones { display: none; }
+  .icon-btn { width: 46px; height: 46px; font-size: 19px; }
+  .menu { gap: 12px; }
+  .menu-card { padding: 12px 14px; }
+  .ai-cards { gap: 8px; }
+  .step { --reserve: 380px; }
+  .step:has(.choices) { --reserve: 500px; --min-board: 180px; }
+  .game { --reserve: 368px; }
+  .lesson-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .lesson-card {
+    padding: 14px 4px 10px;
+  }
+  .lesson-emoji { font-size: 30px; }
+  .lesson-title { font-size: 16px; word-break: keep-all; }
+  .lesson-num { font-size: 13px; top: 4px; left: 8px; }
+  .lesson-check { font-size: 18px; top: 2px; right: 6px; }
+  .ai-card {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    text-align: left;
+    align-items: center;
+    column-gap: 10px;
+    padding: 8px 12px;
+  }
+  .ai-card .ai-emoji { grid-row: 1 / span 3; font-size: 42px; text-align: center; }
+  .ai-name { font-size: 21px; }
+  .ai-desc { font-size: 14px; }
+  .choice { min-width: 68px; padding: 10px 12px; font-size: 22px; }
+  .choice.ox { font-size: 16px; padding: 10px; }
+  .game-actions .btn { font-size: 16px; padding: 10px 13px; }
+  .player { padding: 6px; font-size: 16px; }
+  .caps { font-size: 15px; }
+  .pill { padding: 8px 16px; font-size: 18px; }
+  .btn.big { font-size: 20px; padding: 13px 22px; }
+  .bubble { font-size: 18px; padding: 10px 46px 10px 14px; }
+  .step-actions { min-height: 52px; }
+}
+
+/* 가로 화면(태블릿 가로·노트북·폰 가로): 바둑판 왼쪽, 설명과 버튼 오른쪽 */
+@media (min-aspect-ratio: 5/4) {
+  .app {
+    max-width: 1280px;
+  }
+  .topbar {
+    padding-top: 6px;
+  }
+  .icon-btn {
+    width: 46px;
+    height: 46px;
+    font-size: 20px;
+  }
+  .step,
+  .game {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-auto-rows: min-content;
+    column-gap: 28px;
+    row-gap: 14px;
+    align-content: start;
+  }
+  .step > *,
+  .game > * {
+    grid-column: 2;
+  }
+  .step > .board-wrap,
+  .game > .board-wrap {
+    grid-column: 1;
+    grid-row: 1 / span 8;
+    margin: 0;
+  }
+  .step > .board-wrap {
+    width: min(620px, 55vw, calc(100dvh - 140px));
+  }
+  .game > .board-wrap {
+    width: min(680px, 58vw, calc(100dvh - 76px));
+  }
+  .question-again { margin-left: 64px; }
+  .choices,
+  .step-actions,
+  .game-actions {
+    justify-content: flex-start;
+  }
+  .game.screen { gap: 0; }
+
+  .menu {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .menu-card {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    padding: 16px 14px;
+  }
+  .menu-card > *,
+  .menu-card > .menu-emoji {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .menu-meter { width: 80%; }
+  .lesson-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+  .ai-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .ai-card { padding: 10px; }
+  .ai-emoji { font-size: 44px; }
+  .options {
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: 36px;
+    justify-content: center;
+  }
+}
+
+/* 낮은 화면(폰 가로, 작은 노트북 창) */
+@media (max-height: 480px) {
+  .topbar { padding-top: 4px; padding-bottom: 0; }
+  .logo { font-size: 20px; }
+  .icon-btn { width: 40px; height: 40px; font-size: 17px; }
+  .screen { gap: 8px; }
+  .teacher-face { font-size: 34px; }
+  .bubble { font-size: 16px; padding: 8px 44px 8px 12px; min-height: 0; line-height: 1.4; }
+  .speak { width: 32px; height: 32px; font-size: 15px; top: 5px; right: 5px; }
+  .question-again { font-size: 14px; margin-left: 46px; }
+  .btn { font-size: 15px; padding: 8px 13px; }
+  .btn.big { font-size: 17px; padding: 10px 18px; }
+  .choice { min-width: 60px; padding: 8px 10px; font-size: 18px; }
+  .choice.ox { font-size: 15px; }
+  .step-actions { min-height: 44px; }
+  .lesson-head h2, .quiz-head h2 { font-size: 20px; }
+  .step > .board-wrap { width: min(55vw, calc(100dvh - 110px)); }
+  .game > .board-wrap { width: min(58vw, calc(100dvh - 60px)); }
+  .player { padding: 4px; font-size: 15px; }
+  .menu-card { padding: 8px; }
+  .menu-card > .menu-emoji { font-size: 36px; }
+  .menu-title { font-size: 22px; }
+  .menu-sub, .menu-badge { font-size: 14px; }
+  .lesson-card { padding: 8px 4px 6px; }
+  .lesson-emoji { font-size: 26px; }
+  .lesson-title { font-size: 15px; }
+  .ai-emoji { font-size: 32px; }
+  .ai-name { font-size: 18px; }
+  .ai-desc { font-size: 13px; }
+  .pill { padding: 6px 14px; font-size: 16px; }
+  .option-label { font-size: 16px; }
+  .celebrate { font-size: 56px; }
+  .stars-big { font-size: 48px; }
+}
+
+/* 작은 폰 세로: 답한 뒤 다시 보여 주는 문제 문장은 숨겨 한 화면에 맞춤 */
+@media (max-width: 520px) and (max-height: 700px) {
+  .question-again { display: none; }
 }

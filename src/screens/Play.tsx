@@ -16,6 +16,7 @@ import { Board, type CapturedStone } from '../components/Board';
 import { Teacher } from '../components/Teacher';
 import { saveProgress, type Progress } from '../lib/progress';
 import { sounds } from '../lib/sound';
+import { logEvent } from '../lib/log';
 
 interface Settings {
   level: Level;
@@ -43,7 +44,7 @@ function Setup({ progress, onStart }: { progress: Progress; onStart: (s: Setting
   const [target, setTarget] = useState<Settings['target']>(1);
   return (
     <div className="screen">
-      <Teacher text="누구랑 대국할까요? 나는 흑돌, AI 친구는 백돌이에요. 흑이 먼저 둬요!" />
+      <Teacher text="누구랑 대국할까요? 나는 흑돌, AI 친구는 백돌! 흑이 먼저 둬요." />
       <div className="ai-cards">
         {LEVELS.map((l) => (
           <button key={l} className={`ai-card ${level === l ? 'selected' : ''}`} onClick={() => setLevel(l)}>
@@ -54,6 +55,7 @@ function Setup({ progress, onStart }: { progress: Progress; onStart: (s: Setting
           </button>
         ))}
       </div>
+      <div className="options">
       <div className="option-row">
         <span className="option-label">바둑판</span>
         {([5, 7, 9] as const).map((s) => (
@@ -63,12 +65,13 @@ function Setup({ progress, onStart }: { progress: Progress; onStart: (s: Setting
         ))}
       </div>
       <div className="option-row">
-        <span className="option-label">목표</span>
+        <span className="option-label">먼저 잡기</span>
         {([1, 3, 5] as const).map((t) => (
           <button key={t} className={`pill ${target === t ? 'on' : ''}`} onClick={() => setTarget(t)}>
-            {t}개 먼저 잡기
+            {t}개
           </button>
         ))}
+      </div>
       </div>
       <div className="row">
         <button className="btn primary big" onClick={() => onStart({ level, size, target })}>
@@ -106,6 +109,7 @@ function Game({
 
   const finish = (result: Over) => {
     setOver(result);
+    logEvent('finish', result.winner === BLACK ? 'kidwin' : result.winner === WHITE ? 'botwin' : 'draw');
     // 마지막 돌 소리가 끝난 뒤에 결과 음악
     const fanfare = result.winner === BLACK ? sounds.win : result.winner === WHITE ? sounds.lose : sounds.draw;
     setTimeout(fanfare, 550);
@@ -164,7 +168,8 @@ function Game({
   // 대국 시작 소리
   useEffect(() => {
     sounds.start();
-  }, []);
+    logEvent('start', level);
+  }, [level]);
 
   // AI 차례
   useEffect(() => {
@@ -312,6 +317,7 @@ function Game({
               onClick={() => {
                 recorded.current = false;
                 sounds.start();
+                logEvent('start', level);
                 setPos(emptyPosition(size));
                 setHistory([]);
                 setOver(null);
@@ -336,7 +342,7 @@ function Game({
               ↩️ 무르기
             </button>
             <button className={`btn ${helper ? 'on' : ''}`} onClick={() => setHelper((h) => !h)}>
-              {helper ? '🛟 도우미 켜짐' : '🛟 도우미 꺼짐'}
+              {helper ? '🛟 도우미 ON' : '🛟 도우미 OFF'}
             </button>
             <button className="btn" onClick={onExit}>
               ⚙️ 그만

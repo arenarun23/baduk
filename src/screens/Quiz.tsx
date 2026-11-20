@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { quiz } from '../data/quiz';
 import type { Step } from '../data/steps';
 import { StepRunner } from '../components/StepRunner';
@@ -6,6 +6,7 @@ import { Teacher } from '../components/Teacher';
 import { saveProgress, type Progress } from '../lib/progress';
 import { sounds } from '../lib/sound';
 import { go } from '../router';
+import { logEvent } from '../lib/log';
 
 const shuffle = <T,>(arr: T[]): T[] => {
   const a = arr.slice();
@@ -26,6 +27,9 @@ export function QuizScreen({ onProgress }: { onProgress: (p: Progress) => void }
   const [idx, setIdx] = useState(0);
   const [results, setResults] = useState<boolean[]>([]);
   const done = results.length === questions.length;
+  useEffect(() => {
+    if (results.length === 0) logEvent('start', 'quiz');
+  }, [questions, results.length]);
   const score = results.filter(Boolean).length;
 
   if (done) {
@@ -101,6 +105,7 @@ export function QuizScreen({ onProgress }: { onProgress: (p: Progress) => void }
             const s = next.filter(Boolean).length;
             // 별이 하나씩 "딩, 딩, 딩" 나타나요
             const stars = starsFor(s, questions.length);
+            logEvent('finish', `quiz-star${stars}`);
             for (let k = 0; k < stars; k++) setTimeout(() => sounds.star(k), 300 + k * 350);
             if (stars === 3) setTimeout(sounds.win, 300 + 3 * 350 + 200);
             else if (stars === 0) setTimeout(sounds.wrong, 300);
