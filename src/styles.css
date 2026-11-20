@@ -1,0 +1,627 @@
+:root {
+  --bg: #fff6e0;
+  --bg2: #ffe9b8;
+  --ink: #3b2a1a;
+  --ink-soft: #7a6450;
+  --card: #ffffff;
+  --primary: #ff8a3d;
+  --primary-dark: #e86a1a;
+  --green: #3cb371;
+  --red: #ef5350;
+  --blue: #3d8bff;
+  --yellow: #ffcf33;
+  --wood: #e8c27a;
+  --wood-line: #6b4a22;
+  --shadow: 0 6px 0 rgba(120, 80, 30, 0.18);
+  --radius: 22px;
+  font-family: 'Jua', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  min-height: 100%;
+}
+
+body {
+  background: linear-gradient(180deg, var(--bg2), var(--bg) 320px);
+  background-attachment: fixed;
+}
+
+button {
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.app {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 16px 40px;
+}
+
+/* ---------- 상단 ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0 6px;
+  gap: 8px;
+}
+.logo {
+  border: none;
+  background: none;
+  font-size: clamp(22px, 5vw, 30px);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.logo-stones {
+  font-size: 0.8em;
+}
+.icon-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  font-size: 22px;
+  flex: none;
+}
+.icon-btn.placeholder {
+  visibility: hidden;
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fade-in 0.3s ease;
+}
+.screen.center {
+  align-items: center;
+  text-align: center;
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- 판다 선생님 ---------- */
+.teacher {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+}
+.teacher-face {
+  font-size: 54px;
+  line-height: 1;
+  flex: none;
+  animation: bob 2.4s ease-in-out infinite;
+}
+.mood-happy .teacher-face {
+  animation: jump 0.6s ease 2;
+}
+.mood-oops .teacher-face {
+  animation: shake 0.4s ease;
+}
+@keyframes bob { 50% { transform: translateY(-4px); } }
+@keyframes jump { 50% { transform: translateY(-14px) scale(1.1); } }
+@keyframes shake { 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
+
+.bubble {
+  position: relative;
+  flex: 1;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 52px 14px 18px;
+  box-shadow: var(--shadow);
+  font-size: clamp(19px, 4.4vw, 23px);
+  line-height: 1.5;
+  min-height: 60px;
+}
+.bubble::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 20px;
+  border: 10px solid transparent;
+  border-right-color: var(--card);
+  border-left: 0;
+}
+.bubble p {
+  margin: 0;
+  word-break: keep-all;
+}
+.mood-happy .bubble { background: #eaffef; }
+.mood-happy .bubble::before { border-right-color: #eaffef; }
+.mood-oops .bubble { background: #fff0ee; }
+.mood-oops .bubble::before { border-right-color: #fff0ee; }
+.speak {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  border: none;
+  background: var(--bg);
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  font-size: 18px;
+}
+.question-again {
+  margin: -6px 0 0 64px;
+  color: var(--ink-soft);
+  font-size: 17px;
+}
+
+/* ---------- 버튼 ---------- */
+.btn {
+  border: none;
+  border-radius: 999px;
+  padding: 12px 20px;
+  font-size: 19px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  transition: transform 0.1s;
+}
+.btn:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 rgba(120, 80, 30, 0.18);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.btn.primary {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 6px 0 var(--primary-dark);
+}
+.btn.big {
+  font-size: 23px;
+  padding: 16px 28px;
+}
+.btn.ghost {
+  background: #fff8;
+}
+.btn.on {
+  background: #dff5e6;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* ---------- 홈 ---------- */
+.menu {
+  display: grid;
+  gap: 16px;
+}
+.menu-card {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  column-gap: 14px;
+  row-gap: 2px;
+  align-items: center;
+  text-align: left;
+  border: none;
+  border-radius: 28px;
+  padding: 18px 20px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  transition: transform 0.15s;
+}
+.menu-card:hover {
+  transform: translateY(-3px) rotate(-0.5deg);
+}
+.menu-card.learn { background: #fff; border: 4px solid #ffd27a; }
+.menu-card.quiz { background: #fff; border: 4px solid #9fd9ff; }
+.menu-card.play { background: #fff; border: 4px solid #b5e8a5; }
+.menu-card > * {
+  grid-column: 2;
+}
+.menu-card > .menu-emoji {
+  grid-column: 1;
+  grid-row: 1 / span 4;
+  font-size: 58px;
+  text-align: center;
+}
+.menu-title {
+  font-size: 30px;
+}
+.menu-sub {
+  font-size: 17px;
+  color: var(--ink-soft);
+}
+.menu-badge {
+  font-size: 17px;
+  color: var(--ink-soft);
+}
+.menu-meter {
+  display: block;
+  height: 12px;
+  background: #f3e6cc;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 4px 0;
+}
+.menu-meter span {
+  display: block;
+  height: 100%;
+  background: var(--yellow);
+  border-radius: 6px;
+}
+.stars .on,
+.stars-big .on { color: var(--yellow); text-shadow: 0 2px 0 #d9a400; }
+.stars .off,
+.stars-big .off { color: #e5dccb; }
+.stars span { font-size: 26px; letter-spacing: 2px; }
+
+/* ---------- 배우기 목록 ---------- */
+.lesson-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+}
+.lesson-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 18px 8px 14px;
+  border: 4px solid transparent;
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.lesson-card.next {
+  border-color: var(--primary);
+  animation: glow 1.6s ease-in-out infinite;
+}
+@keyframes glow { 50% { box-shadow: 0 6px 0 rgba(120, 80, 30, 0.18), 0 0 0 6px #ff8a3d33; } }
+.lesson-card.done {
+  background: #f0fbf2;
+}
+.lesson-num {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  font-size: 16px;
+  color: var(--ink-soft);
+}
+.lesson-emoji { font-size: 40px; }
+.lesson-title { font-size: 20px; }
+.lesson-check {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  color: var(--green);
+  font-size: 24px;
+}
+
+.lesson-head,
+.quiz-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.lesson-head h2,
+.quiz-head h2 {
+  margin: 0;
+  font-weight: normal;
+  font-size: 26px;
+}
+.dots { display: flex; gap: 6px; }
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #eadcc0;
+}
+.dot.past { background: var(--green); }
+.dot.now { background: var(--primary); transform: scale(1.25); }
+
+.quiz-progress { display: flex; flex-wrap: wrap; gap: 4px; }
+.qdot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #eadcc0;
+  font-size: 15px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.qdot.ok { background: var(--green); }
+.qdot.no { background: var(--red); }
+.qdot.now { background: var(--primary); }
+
+/* ---------- 바둑판 ---------- */
+.board-wrap {
+  position: relative;
+  width: 100%;
+  max-width: min(560px, 100%);
+  margin: 0 auto;
+}
+.board {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: manipulation;
+  user-select: none;
+}
+.board-wood {
+  fill: var(--wood);
+  stroke: #c99a4b;
+  stroke-width: 6;
+}
+.board-line line {
+  stroke: var(--wood-line);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.star-point { fill: var(--wood-line); }
+.hit { fill: transparent; }
+.board.interactive .hit { cursor: pointer; }
+
+.stone-in circle:first-child {
+  animation: drop 0.22s ease-out;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes drop {
+  from { transform: scale(1.35); opacity: 0.4; }
+  to { transform: scale(1); opacity: 1; }
+}
+.stone-out {
+  animation: pop-out 0.9s ease-in forwards;
+  pointer-events: none;
+}
+@keyframes pop-out {
+  0% { transform: scale(1); opacity: 1; }
+  40% { transform: scale(1.25); opacity: 0.9; }
+  100% { transform: scale(0); opacity: 0; }
+}
+.pop-star { font-size: 40px; }
+
+.ghost { pointer-events: none; }
+.ghost-1 { fill: #000; opacity: 0.3; }
+.ghost-2 { fill: #fff; opacity: 0.6; }
+
+.last-on-black { fill: none; stroke: #ff9f5a; stroke-width: 6; }
+.last-on-white { fill: none; stroke: #ff7a1a; stroke-width: 6; }
+
+.danger-ring {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 7;
+  animation: blink 0.9s ease-in-out infinite;
+}
+@keyframes blink { 50% { opacity: 0.2; } }
+.focus-ring {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 7;
+  stroke-dasharray: 14 8;
+}
+.mark-liberty {
+  fill: var(--green);
+  stroke: #fff;
+  stroke-width: 4;
+  animation: pulse 1.3s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes pulse { 50% { transform: scale(1.25); } }
+.mark-no line {
+  stroke: var(--red);
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+.mark-target { font-size: 40px; }
+.mark-question {
+  font-size: 54px;
+  fill: var(--blue);
+  font-weight: bold;
+}
+.mark-hint {
+  fill: #ffcf3366;
+  stroke: var(--yellow);
+  stroke-width: 8;
+  animation: blink 0.9s ease-in-out infinite;
+}
+
+/* ---------- 문제 ---------- */
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+.choice {
+  min-width: 96px;
+  border: 4px solid transparent;
+  border-radius: 20px;
+  padding: 14px 18px;
+  font-size: 26px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.choice.ox { font-size: 21px; }
+.choice.right { border-color: var(--green); background: #e9faef; }
+.choice.wrong { border-color: var(--red); background: #ffeceb; }
+.choice:disabled { cursor: default; }
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.step-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  min-height: 60px;
+}
+
+.celebrate {
+  font-size: 96px;
+  animation: jump 0.8s ease 3;
+}
+.stars-big {
+  font-size: 80px;
+  letter-spacing: 6px;
+}
+.stars-big .on { animation: jump 0.6s ease 2; display: inline-block; }
+.score {
+  margin: 0;
+  font-weight: normal;
+  font-size: 28px;
+}
+
+/* ---------- 대국 ---------- */
+.ai-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+.ai-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: 5px solid transparent;
+  border-radius: var(--radius);
+  padding: 16px 12px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.ai-card.selected {
+  border-color: var(--primary);
+  background: #fff4ea;
+}
+.ai-emoji { font-size: 56px; }
+.ai-name { font-size: 24px; }
+.ai-desc { font-size: 16px; color: var(--ink-soft); word-break: keep-all; }
+.ai-wins { font-size: 16px; color: var(--green); }
+
+.option-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.option-label {
+  font-size: 20px;
+  min-width: 64px;
+}
+.pill {
+  border: 3px solid #eadcc0;
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-size: 20px;
+  background: var(--card);
+}
+.pill.on {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+
+.scoreboard {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+.player {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 8px;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  font-size: 19px;
+  border: 4px solid transparent;
+  text-align: center;
+}
+.player.turn {
+  border-color: var(--primary);
+}
+.vs {
+  align-self: center;
+  font-size: 18px;
+  color: var(--ink-soft);
+}
+.stone-icon {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  vertical-align: -4px;
+}
+.stone-icon.black { background: radial-gradient(circle at 35% 30%, #666, #000); }
+.stone-icon.white { background: radial-gradient(circle at 35% 30%, #fff, #ccc); border: 1px solid #aaa; }
+.caps {
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+.caps small {
+  margin-left: 6px;
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+.game-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.confetti span {
+  position: absolute;
+  top: -40px;
+  font-size: 30px;
+  animation: fall 2.4s ease-in forwards;
+}
+@keyframes fall {
+  to { transform: translateY(620px) rotate(540deg); opacity: 0; }
+}
+
+@media (max-width: 480px) {
+  .teacher-face { font-size: 42px; }
+  .question-again { margin-left: 52px; }
+  .menu-card { grid-template-columns: 60px 1fr; padding: 14px 16px; }
+  .menu-card > .menu-emoji { font-size: 46px; }
+  .menu-title { font-size: 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
