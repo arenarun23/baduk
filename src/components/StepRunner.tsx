@@ -71,9 +71,9 @@ export function StepRunner({ step, mode, onNext, nextLabel = '다음 ▶' }: Pro
       setPos(r.pos);
       setLastMove(i);
       setCaptured(r.captured.map((c) => ({ i: c, color: 2 })));
-      if (r.captured.length) sounds.capture();
-      else sounds.stone();
-      setTimeout(() => sounds.correct(), 250);
+      sounds.stone();
+      if (r.captured.length) sounds.capture(r.captured.length);
+      setTimeout(() => sounds.correct(), r.captured.length ? 550 : 250);
       setFeedback({ correct: true, text: step.success });
       return;
     }

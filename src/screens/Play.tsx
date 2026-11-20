@@ -106,13 +106,15 @@ function Game({
 
   const finish = (result: Over) => {
     setOver(result);
+    // 마지막 돌 소리가 끝난 뒤에 결과 음악
+    const fanfare = result.winner === BLACK ? sounds.win : result.winner === WHITE ? sounds.lose : sounds.draw;
+    setTimeout(fanfare, 550);
     if (result.winner === BLACK) {
-      sounds.win();
       if (!recorded.current) {
         recorded.current = true;
         onProgress(saveProgress((p) => ({ ...p, wins: { ...p.wins, [level]: p.wins[level] + 1 } })));
       }
-    } else if (result.winner === WHITE) sounds.lose();
+    }
   };
 
   /** 한 수를 둔 뒤 공통 처리 */
@@ -123,21 +125,33 @@ function Game({
     setLastMove(move);
     setPasses(0);
     setHint(null);
+    sounds.stone(color === WHITE);
     if (r.captured.length) {
       setCaptured(r.captured.map((i) => ({ i, color: color === BLACK ? WHITE : BLACK })));
       setAnimKey((k) => k + 1);
-      sounds.capture();
+      if (color === BLACK) sounds.capture(r.captured.length);
+      else sounds.lost(r.captured.length);
     } else {
       setCaptured([]);
-      sounds.stone();
     }
-    if (r.pos.captures[color] >= target) finish({ winner: color, reason: 'target' });
+    if (r.pos.captures[color] >= target) {
+      finish({ winner: color, reason: 'target' });
+    } else if (helper) {
+      // 새로 단수가 된 돌이 있으면 소리로 알려 주기
+      const newlyInAtari = (c: Color) => {
+        const before = new Set(stonesInAtari(from, c));
+        return stonesInAtari(r.pos, c).some((s) => !before.has(s));
+      };
+      if (color === WHITE && newlyInAtari(BLACK)) setTimeout(sounds.atari, 300);
+      else if (color === BLACK && newlyInAtari(WHITE)) setTimeout(sounds.chance, 300);
+    }
     return r;
   };
 
   const doPass = (from: Position) => {
     const nextPasses = passes + 1;
     setPos(passMove(from));
+    sounds.pass();
     setPasses(nextPasses);
     setLastMove(null);
     if (nextPasses >= 2) {
@@ -146,6 +160,11 @@ function Game({
       finish({ winner: b === w ? null : b > w ? BLACK : WHITE, reason: 'nomoves' });
     }
   };
+
+  // 대국 시작 소리
+  useEffect(() => {
+    sounds.start();
+  }, []);
 
   // AI 차례
   useEffect(() => {
@@ -208,6 +227,7 @@ function Game({
     setCaptured([]);
     setHint(null);
     setPasses(0);
+    sounds.undo();
     setMessage('한 수 물렀어요. 다시 생각해 봐요!');
   };
 
@@ -215,6 +235,7 @@ function Game({
     if (!myTurn) return;
     const m = chooseMove(pos, BLACK, 'tiger');
     setHint(m);
+    if (m !== null) sounds.hint();
     setMessage(m === null ? '둘 곳이 없어요.' : '노란 동그라미에 두면 좋아요!');
   };
 
@@ -290,6 +311,7 @@ function Game({
               className="btn primary big"
               onClick={() => {
                 recorded.current = false;
+                sounds.start();
                 setPos(emptyPosition(size));
                 setHistory([]);
                 setOver(null);

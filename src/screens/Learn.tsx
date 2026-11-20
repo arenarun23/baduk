@@ -85,7 +85,7 @@ export function LessonScreen({ id, onProgress }: { id: string; onProgress: (p: P
         nextLabel={last ? '레슨 끝! 🎉' : '다음 ▶'}
         onNext={() => {
           if (!last) return setStepIdx(stepIdx + 1);
-          sounds.win();
+          sounds.lessonDone();
           onProgress(
             saveProgress((p) => ({
               ...p,

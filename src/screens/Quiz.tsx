@@ -99,7 +99,11 @@ export function QuizScreen({ onProgress }: { onProgress: (p: Progress) => void }
           setResults(next);
           if (next.length === questions.length) {
             const s = next.filter(Boolean).length;
-            if (starsFor(s, questions.length) >= 2) sounds.win();
+            // 별이 하나씩 "딩, 딩, 딩" 나타나요
+            const stars = starsFor(s, questions.length);
+            for (let k = 0; k < stars; k++) setTimeout(() => sounds.star(k), 300 + k * 350);
+            if (stars === 3) setTimeout(sounds.win, 300 + 3 * 350 + 200);
+            else if (stars === 0) setTimeout(sounds.wrong, 300);
             onProgress(
               saveProgress((p) => ({
                 ...p,
