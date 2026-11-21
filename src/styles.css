@@ -56,7 +56,8 @@ button {
 .app {
   max-width: 760px;
   margin: 0 auto;
-  padding: 0 16px 12px;
+  /* 노치·둥근 모서리(safe-area) 안쪽으로 16px */
+  padding: 0 calc(16px + env(safe-area-inset-right, 0px)) 12px calc(16px + env(safe-area-inset-left, 0px));
 }
 
 /* ---------- 상단 ---------- */
@@ -798,6 +799,13 @@ button {
   .options .option-row {
     flex: 1 1 400px;
     max-width: 560px;
+  }
+}
+
+/* 폰 가로: 바둑판이 화면 왼쪽 끝(베젤·휘어진 가장자리)에 붙지 않게 왼쪽을 약 2mm(12px) 더 띄움 */
+@media (min-aspect-ratio: 5/4) and (max-height: 500px) {
+  .app {
+    padding-left: calc(28px + env(safe-area-inset-left, 0px));
   }
 }
 
