@@ -21,10 +21,13 @@ import { logEvent } from '../lib/log';
 interface Settings {
   level: Level;
   board: BoardSize;
-  target: 1 | 3 | 5;
+  target: number;
 }
 
 const LEVELS: Level[] = ['turtle', 'rabbit', 'tiger'];
+
+/** 먼저 몇 개 잡으면 이길까 */
+const TARGETS = [1, 3, 5, 7, 9, 10];
 
 interface BoardSize {
   w: number;
@@ -83,10 +86,11 @@ function Setup({ progress, onStart }: { progress: Progress; onStart: (s: Setting
       </div>
       <div className="option-row">
         <span className="option-label">먼저 잡기</span>
-        <div className="pills">
-          {([1, 3, 5] as const).map((t) => (
+        <div className="pills six">
+          {TARGETS.map((t) => (
             <button key={t} className={`pill ${target === t ? 'on' : ''}`} onClick={() => setTarget(t)}>
-              {t}개
+              {t}
+              <span className="unit">개</span>
             </button>
           ))}
         </div>
@@ -290,7 +294,7 @@ function Game({
         <div className={`player ${pos.toPlay === BLACK && !over ? 'turn' : ''}`}>
           <span className="stone-icon black" /> 나
           <span className="caps">
-            {'●'.repeat(pos.captures[BLACK])}
+            {target <= 5 && '●'.repeat(Math.min(pos.captures[BLACK], target))}
             <small>
               {pos.captures[BLACK]}/{target}
             </small>
@@ -300,7 +304,7 @@ function Game({
         <div className={`player ${pos.toPlay === WHITE && !over ? 'turn' : ''}`}>
           <span className="stone-icon white" /> {ai.emoji} {ai.name}
           <span className="caps">
-            {'○'.repeat(pos.captures[WHITE])}
+            {target <= 5 && '○'.repeat(Math.min(pos.captures[WHITE], target))}
             <small>
               {pos.captures[WHITE]}/{target}
             </small>

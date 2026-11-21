@@ -566,6 +566,10 @@ button {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
 }
+/* 먼저 잡기: 1·3·5·7·9·10 여섯 칸 */
+.pills.six {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
 .pill {
   border: 3px solid var(--line-soft);
   border-radius: 999px;
@@ -884,4 +888,9 @@ button {
   .option-label { width: 4.2em; font-size: 15px; }
   .pill { font-size: 15px; }
   .pills { gap: 4px; }
+}
+
+/* 좁은 폰: 먼저 잡기 6칸이 한 줄에 들어가게 '개'는 숨기고 숫자만 (라벨이 '먼저 잡기') */
+@media (max-width: 439px) {
+  .pills.six .unit { display: none; }
 }
