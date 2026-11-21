@@ -40,7 +40,7 @@ export default function App() {
       <header className="topbar">
         {back ? (
           <button className="icon-btn" onClick={() => go(back)} aria-label="뒤로">
-            ◀
+            {'\u25C0\uFE0E' /* ◀ 글자 모양(이모지 아님)이라 다크 모드에서 글자색을 따름 */}
           </button>
         ) : (
           <span className="icon-btn placeholder" />

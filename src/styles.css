@@ -12,7 +12,19 @@
   --yellow: #ffcf33;
   --wood: #e8c27a;
   --wood-line: #6b4a22;
-  --shadow: 0 6px 0 rgba(120, 80, 30, 0.18);
+  --shadow-c: rgba(120, 80, 30, 0.18);
+  --shadow: 0 6px 0 var(--shadow-c);
+  /* 화면 색 (다크 모드에서 바뀜). 바둑판·돌 색은 진짜 물건이라 모드와 상관없이 그대로 */
+  --tint-happy: #eaffef;
+  --tint-oops: #fff0ee;
+  --tint-on: #dff5e6;
+  --tint-selected: #fff4ea;
+  --tint-done: #f0fbf2;
+  --line-soft: #eadcc0;
+  --track: #f3e6cc;
+  --star-off: #e5dccb;
+  --ghost-btn: #fff8;
+  color-scheme: light dark;
   --radius: 22px;
   font-family: 'Jua', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
   color: var(--ink);
@@ -142,10 +154,10 @@ button {
   margin: 0;
   word-break: keep-all;
 }
-.mood-happy .bubble { background: #eaffef; }
-.mood-happy .bubble::before { border-right-color: #eaffef; }
-.mood-oops .bubble { background: #fff0ee; }
-.mood-oops .bubble::before { border-right-color: #fff0ee; }
+.mood-happy .bubble { background: var(--tint-happy); }
+.mood-happy .bubble::before { border-right-color: var(--tint-happy); }
+.mood-oops .bubble { background: var(--tint-oops); }
+.mood-oops .bubble::before { border-right-color: var(--tint-oops); }
 .speak {
   position: absolute;
   right: 8px;
@@ -175,7 +187,7 @@ button {
 }
 .btn:active:not(:disabled) {
   transform: translateY(5px);
-  box-shadow: 0 1px 0 rgba(120, 80, 30, 0.18);
+  box-shadow: 0 1px 0 var(--shadow-c);
   transition-duration: 0s;
 }
 .btn.primary:active:not(:disabled) {
@@ -195,10 +207,10 @@ button {
   padding: 16px 28px;
 }
 .btn.ghost {
-  background: #fff8;
+  background: var(--ghost-btn);
 }
 .btn.on {
-  background: #dff5e6;
+  background: var(--tint-on);
 }
 .row {
   display: flex;
@@ -229,9 +241,9 @@ button {
 .menu-card:hover {
   transform: translateY(-3px) rotate(-0.5deg);
 }
-.menu-card.learn { background: #fff; border: 4px solid #ffd27a; }
-.menu-card.quiz { background: #fff; border: 4px solid #9fd9ff; }
-.menu-card.play { background: #fff; border: 4px solid #b5e8a5; }
+.menu-card.learn { background: var(--card); border: 4px solid #ffd27a; }
+.menu-card.quiz { background: var(--card); border: 4px solid #9fd9ff; }
+.menu-card.play { background: var(--card); border: 4px solid #b5e8a5; }
 .menu-card > * {
   grid-column: 2;
 }
@@ -255,7 +267,7 @@ button {
 .menu-meter {
   display: block;
   height: 12px;
-  background: #f3e6cc;
+  background: var(--track);
   border-radius: 6px;
   overflow: hidden;
   margin: 4px 0;
@@ -269,7 +281,7 @@ button {
 .stars .on,
 .stars-big .on { color: var(--yellow); text-shadow: 0 2px 0 #d9a400; }
 .stars .off,
-.stars-big .off { color: #e5dccb; }
+.stars-big .off { color: var(--star-off); }
 .stars span { font-size: 26px; letter-spacing: 2px; }
 
 /* ---------- 배우기 목록 ---------- */
@@ -294,9 +306,9 @@ button {
   border-color: var(--primary);
   animation: glow 1.6s ease-in-out infinite;
 }
-@keyframes glow { 50% { box-shadow: 0 6px 0 rgba(120, 80, 30, 0.18), 0 0 0 6px #ff8a3d33; } }
+@keyframes glow { 50% { box-shadow: 0 6px 0 var(--shadow-c), 0 0 0 6px #ff8a3d33; } }
 .lesson-card.done {
-  background: #f0fbf2;
+  background: var(--tint-done);
 }
 .lesson-num {
   position: absolute;
@@ -334,7 +346,7 @@ button {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #eadcc0;
+  background: var(--line-soft);
 }
 .dot.past { background: var(--green); }
 .dot.now { background: var(--primary); transform: scale(1.25); }
@@ -344,7 +356,7 @@ button {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #eadcc0;
+  background: var(--line-soft);
   font-size: 15px;
   display: grid;
   place-items: center;
@@ -476,8 +488,8 @@ button {
   box-shadow: var(--shadow);
 }
 .choice.ox { font-size: 21px; }
-.choice.right { border-color: var(--green); background: #e9faef; }
-.choice.wrong { border-color: var(--red); background: #ffeceb; }
+.choice.right { border-color: var(--green); background: var(--tint-happy); }
+.choice.wrong { border-color: var(--red); background: var(--tint-oops); }
 .choice:disabled { cursor: default; }
 .step {
   display: flex;
@@ -526,7 +538,7 @@ button {
 }
 .ai-card.selected {
   border-color: var(--primary);
-  background: #fff4ea;
+  background: var(--tint-selected);
 }
 .ai-emoji { font-size: 56px; }
 .ai-name { font-size: 24px; }
@@ -554,7 +566,7 @@ button {
   gap: 6px;
 }
 .pill {
-  border: 3px solid #eadcc0;
+  border: 3px solid var(--line-soft);
   border-radius: 999px;
   min-height: 44px;
   padding: 8px 2px;
@@ -832,6 +844,31 @@ button {
   .ai-desc { display: none; }
   .ai-card .ai-emoji { font-size: 32px; }
   .ai-card { padding: 6px 12px; }
+}
+
+/* ================================================================
+   다크 모드: 기기가 어두운 화면이면 앱이 직접 어둡게 바꾼다.
+   (앱이 다크 모드를 지원한다고 알려야 삼성 인터넷·크롬이 페이지를 억지로 어둡게 칠하지 않는다 —
+    억지로 칠하면 흰 돌까지 검게 변한다)
+   ================================================================ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1d1712;
+    --bg2: #2b2118;
+    --ink: #f6ead8;
+    --ink-soft: #c4b098;
+    --card: #2e251c;
+    --shadow-c: rgba(0, 0, 0, 0.5);
+    --tint-happy: #1c3d29;
+    --tint-oops: #45241f;
+    --tint-on: #1f3b2a;
+    --tint-selected: #3f2b1b;
+    --tint-done: #1f3325;
+    --line-soft: #54442f;
+    --track: #43372a;
+    --star-off: #4d4135;
+    --ghost-btn: #ffffff14;
+  }
 }
 
 /* 아주 좁은 폰(320px): 고르기 글자가 잘리지 않게 */
