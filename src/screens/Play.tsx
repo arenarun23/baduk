@@ -32,13 +32,13 @@ interface BoardSize {
   label: string;
 }
 
-/** 고를 수 있는 바둑판: 작은 판부터 큰 판까지 (14×15 는 가로 14줄, 세로 15줄) */
+/** 고를 수 있는 바둑판: 작은 판부터 큰 판까지 */
 const BOARDS: BoardSize[] = [
   { w: 5, h: 5, label: '5줄' },
   { w: 7, h: 7, label: '7줄' },
   { w: 9, h: 9, label: '9줄' },
   { w: 12, h: 12, label: '12줄' },
-  { w: 14, h: 15, label: '14×15' },
+  { w: 15, h: 15, label: '15줄' },
 ];
 
 const AI_LINES: Record<Level, { capture: string; lose: string; win: string }> = {
