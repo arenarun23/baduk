@@ -379,7 +379,7 @@ function Game({
   );
 }
 
-function Confetti() {
+export function Confetti() {
   const bits = ['🎉', '⭐', '🌟', '🎊', '✨', '🏆'];
   return (
     <div className="confetti" aria-hidden>

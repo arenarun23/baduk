@@ -37,6 +37,8 @@ interface Props {
   animKey?: number;
   disabled?: boolean;
   ghost?: Color;
+  /** 반짝이는 노란 테두리를 칠 돌들 (오목에서 이긴 줄) */
+  highlight?: number[];
 }
 
 export function Board({
@@ -51,6 +53,7 @@ export function Board({
   animKey = 0,
   disabled = false,
   ghost = 1,
+  highlight = [],
 }: Props) {
   const [hover, setHover] = useState<number | null>(null);
   const spanX = (w - 1) * CELL;
@@ -138,6 +141,7 @@ export function Board({
             <circle cx={x} cy={y} r={STONE_R} fill={`url(#g-${c === 1 ? 'black' : 'white'})`} filter="url(#shadow)" />
             {lastMove === i && <circle cx={x} cy={y} r="12" className={c === 1 ? 'last-on-black' : 'last-on-white'} />}
             {dangerSet.has(i) && <circle cx={x} cy={y} r={STONE_R + 5} className="danger-ring" />}
+            {highlight.includes(i) && <circle cx={x} cy={y} r={STONE_R + 6} className="win-ring" />}
             {marks[i] === 'focus' && <circle cx={x} cy={y} r={STONE_R + 6} className="focus-ring" />}
           </g>
         );

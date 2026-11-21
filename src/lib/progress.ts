@@ -6,6 +6,8 @@ export interface Progress {
   quizBest: number | null;
   quizTotal: number;
   wins: Record<Level, number>;
+  /** 오목에서 이긴 횟수 */
+  omokWins: Record<Level, number>;
 }
 
 const KEY = 'baduk-progress-v1';
@@ -14,6 +16,7 @@ const fresh = (): Progress => ({
   quizBest: null,
   quizTotal: 0,
   wins: { turtle: 0, rabbit: 0, tiger: 0 },
+  omokWins: { turtle: 0, rabbit: 0, tiger: 0 },
 });
 
 export function loadProgress(): Progress {
@@ -21,7 +24,7 @@ export function loadProgress(): Progress {
     const raw = localStorage.getItem(KEY);
     if (!raw) return fresh();
     const p = JSON.parse(raw) as Partial<Progress>;
-    return { ...fresh(), ...p, wins: { ...fresh().wins, ...p.wins } };
+    return { ...fresh(), ...p, wins: { ...fresh().wins, ...p.wins }, omokWins: { ...fresh().omokWins, ...p.omokWins } };
   } catch {
     return fresh();
   }
