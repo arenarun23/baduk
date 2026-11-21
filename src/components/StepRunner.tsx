@@ -46,7 +46,7 @@ export function StepRunner({ step, mode, onNext, nextLabel = '다음 ▶' }: Pro
     for (const s of solutions(step.rows, step.goal)) marks[s] = 'hint';
   }
   if (step.kind === 'count' && finished && parsed?.focus != null && pos) {
-    for (const l of getGroup(pos.cells, pos.size, parsed.focus).liberties) marks[l] = 'liberty';
+    for (const l of getGroup(pos.cells, pos, parsed.focus).liberties) marks[l] = 'liberty';
   }
   if (step.kind === 'ox' && finished && parsed?.focus != null && !oxAnswer(step.rows)) {
     marks[parsed.focus] = 'no';
@@ -114,7 +114,8 @@ export function StepRunner({ step, mode, onNext, nextLabel = '다음 ▶' }: Pro
       {pos && (
         <div className="board-wrap">
           <Board
-            size={pos.size}
+            w={pos.w}
+            h={pos.h}
             cells={pos.cells}
             marks={marks}
             onPlay={step.kind === 'move' ? onPlay : undefined}

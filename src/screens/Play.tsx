@@ -20,11 +20,26 @@ import { logEvent } from '../lib/log';
 
 interface Settings {
   level: Level;
-  size: 5 | 7 | 9;
+  board: BoardSize;
   target: 1 | 3 | 5;
 }
 
 const LEVELS: Level[] = ['turtle', 'rabbit', 'tiger'];
+
+interface BoardSize {
+  w: number;
+  h: number;
+  label: string;
+}
+
+/** 고를 수 있는 바둑판: 작은 판부터 큰 판까지 (14×15 는 가로 14줄, 세로 15줄) */
+const BOARDS: BoardSize[] = [
+  { w: 5, h: 5, label: '5줄' },
+  { w: 7, h: 7, label: '7줄' },
+  { w: 9, h: 9, label: '9줄' },
+  { w: 12, h: 12, label: '12줄' },
+  { w: 14, h: 15, label: '14×15' },
+];
 
 const AI_LINES: Record<Level, { capture: string; lose: string; win: string }> = {
   turtle: { capture: '앗, 내가 잡았네? 엉금엉금~', lose: '우와, 너 정말 잘한다!', win: '헤헤, 내가 이겼다! 한 판 더 할래?' },
@@ -40,7 +55,7 @@ export function PlayScreen({ progress, onProgress }: { progress: Progress; onPro
 
 function Setup({ progress, onStart }: { progress: Progress; onStart: (s: Settings) => void }) {
   const [level, setLevel] = useState<Level>('turtle');
-  const [size, setSize] = useState<Settings['size']>(5);
+  const [board, setBoard] = useState<BoardSize>(BOARDS[0]);
   const [target, setTarget] = useState<Settings['target']>(1);
   return (
     <div className="screen">
@@ -58,9 +73,9 @@ function Setup({ progress, onStart }: { progress: Progress; onStart: (s: Setting
       <div className="options">
       <div className="option-row">
         <span className="option-label">바둑판</span>
-        {([5, 7, 9] as const).map((s) => (
-          <button key={s} className={`pill ${size === s ? 'on' : ''}`} onClick={() => setSize(s)}>
-            {s}줄
+        {BOARDS.map((b) => (
+          <button key={b.label} className={`pill ${board === b ? 'on' : ''}`} onClick={() => setBoard(b)}>
+            {b.label}
           </button>
         ))}
       </div>
@@ -74,7 +89,7 @@ function Setup({ progress, onStart }: { progress: Progress; onStart: (s: Setting
       </div>
       </div>
       <div className="row">
-        <button className="btn primary big" onClick={() => onStart({ level, size, target })}>
+        <button className="btn primary big" onClick={() => onStart({ level, board, target })}>
           대국 시작! ▶
         </button>
       </div>
@@ -93,9 +108,10 @@ function Game({
   onProgress: (p: Progress) => void;
   onExit: () => void;
 }) {
-  const { level, size, target } = settings;
+  const { level, board, target } = settings;
+  const { w, h } = board;
   const ai = AI_INFO[level];
-  const [pos, setPos] = useState<Position>(() => emptyPosition(size));
+  const [pos, setPos] = useState<Position>(() => emptyPosition(w, h));
   const [history, setHistory] = useState<Position[]>([]);
   const [lastMove, setLastMove] = useState<number | null>(null);
   const [captured, setCaptured] = useState<CapturedStone[]>([]);
@@ -294,9 +310,10 @@ function Game({
         mood={over?.winner === BLACK ? 'happy' : 'talk'}
       />
 
-      <div className="board-wrap">
+      <div className="board-wrap" style={{ '--ar': w / h } as React.CSSProperties}>
         <Board
-          size={size}
+          w={w}
+          h={h}
           cells={pos.cells}
           onPlay={onPlay}
           disabled={!myTurn}
@@ -318,7 +335,7 @@ function Game({
                 recorded.current = false;
                 sounds.start();
                 logEvent('start', level);
-                setPos(emptyPosition(size));
+                setPos(emptyPosition(w, h));
                 setHistory([]);
                 setOver(null);
                 setLastMove(null);

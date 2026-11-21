@@ -34,14 +34,14 @@ export function meetsGoal(pos: Position, m: number, goal: Goal): boolean {
     case 'capture':
       return r.captured.length > 0;
     case 'atari': {
-      const myLibs = getGroup(after.cells, after.size, m).liberties.length;
+      const myLibs = getGroup(after.cells, after, m).liberties.length;
       return myLibs >= 2 && allGroups(after, WHITE).some((g) => g.liberties.length === 1);
     }
     case 'escape': {
       const endangered = stonesInAtari(pos, BLACK);
       if (!endangered.length) return false;
       return endangered.every(
-        (s) => after.cells[s] === BLACK && getGroup(after.cells, after.size, s).liberties.length >= 2,
+        (s) => after.cells[s] === BLACK && getGroup(after.cells, after, s).liberties.length >= 2,
       );
     }
   }
@@ -56,7 +56,7 @@ export function solutions(rows: string[], goal: Goal): number[] {
 export function countAnswer(rows: string[]): number {
   const { pos, focus } = parseRows(rows);
   if (focus === null) throw new Error('count step needs a focus stone (x or o)');
-  return getGroup(pos.cells, pos.size, focus).liberties.length;
+  return getGroup(pos.cells, pos, focus).liberties.length;
 }
 
 /** ox 문제의 정답: 눈여겨볼 빈칸에 흑돌을 둘 수 있는지 */

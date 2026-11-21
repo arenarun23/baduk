@@ -7,6 +7,7 @@ import {
   other,
   play,
   type Color,
+  type Dims,
   type Position,
 } from './go';
 
@@ -34,7 +35,7 @@ export function canCapture(
 ): boolean {
   const defender = other(attacker);
   if (pos.cells[stone] !== defender) return true;
-  const g = getGroup(pos.cells, pos.size, stone);
+  const g = getGroup(pos.cells, pos, stone);
   if (g.liberties.length === 1) return play(pos, g.liberties[0], attacker).ok;
   if (g.liberties.length > 2 || depth <= 0 || --budget.left <= 0) return false;
   for (const lib of g.liberties) {
@@ -55,14 +56,14 @@ export function canEscape(
 ): boolean {
   const defender = other(attacker);
   if (pos.cells[stone] !== defender) return false;
-  const g = getGroup(pos.cells, pos.size, stone);
+  const g = getGroup(pos.cells, pos, stone);
   if (g.liberties.length >= 3) return true;
   const candidates = new Set<number>(g.liberties);
   // 둘러싼 상대 돌이 단수면 따내서 탈출
   for (const s of g.stones) {
-    for (const n of neighbors(pos.size, s)) {
+    for (const n of neighbors(pos, s)) {
       if (pos.cells[n] !== attacker) continue;
-      const ag = getGroup(pos.cells, pos.size, n);
+      const ag = getGroup(pos.cells, pos, n);
       if (ag.liberties.length === 1) candidates.add(ag.liberties[0]);
     }
   }
@@ -91,19 +92,19 @@ function captureMoves(pos: Position, color: Color): { move: number; count: numbe
 function libertiesAfter(pos: Position, m: number, color: Color): number {
   const r = play(pos, m, color);
   if (!r.ok) return -1;
-  return getGroup(r.pos.cells, r.pos.size, m).liberties.length;
+  return getGroup(r.pos.cells, r.pos, m).liberties.length;
 }
 
 function isSelfAtari(pos: Position, m: number, color: Color): boolean {
   const r = play(pos, m, color);
   if (!r.ok) return true;
-  return r.captured.length === 0 && getGroup(r.pos.cells, r.pos.size, m).liberties.length === 1;
+  return r.captured.length === 0 && getGroup(r.pos.cells, r.pos, m).liberties.length === 1;
 }
 
-function edgeDistance(size: number, i: number): number {
-  const x = i % size;
-  const y = Math.floor(i / size);
-  return Math.min(x, y, size - 1 - x, size - 1 - y);
+function edgeDistance({ w, h }: Dims, i: number): number {
+  const x = i % w;
+  const y = Math.floor(i / w);
+  return Math.min(x, y, w - 1 - x, h - 1 - y);
 }
 
 // ---------- 🐢 거북이 ----------
@@ -141,9 +142,9 @@ function rabbitMove(pos: Position, color: Color, rng: Rng): number | null {
   const opp = other(color);
   const ataris = moves.filter((m) => {
     const r = play(pos, m, color);
-    if (!r.ok || getGroup(r.pos.cells, r.pos.size, m).liberties.length < 2) return false;
-    return neighbors(pos.size, m).some(
-      (n) => r.pos.cells[n] === opp && getGroup(r.pos.cells, r.pos.size, n).liberties.length === 1,
+    if (!r.ok || getGroup(r.pos.cells, r.pos, m).liberties.length < 2) return false;
+    return neighbors(pos, m).some(
+      (n) => r.pos.cells[n] === opp && getGroup(r.pos.cells, r.pos, n).liberties.length === 1,
     );
   });
   if (ataris.length) return pick(ataris, rng);
@@ -151,12 +152,12 @@ function rabbitMove(pos: Position, color: Color, rng: Rng): number | null {
   // 4. 돌 근처에, 스스로 단수 안 되게
   const safe = moves.filter((m) => !isSelfAtari(pos, m, color));
   const near = safe.filter((m) =>
-    neighbors(pos.size, m).some((n) => pos.cells[n] !== 0) ||
-    neighbors(pos.size, m).some((n) => neighbors(pos.size, n).some((k) => pos.cells[k] !== 0)),
+    neighbors(pos, m).some((n) => pos.cells[n] !== 0) ||
+    neighbors(pos, m).some((n) => neighbors(pos, n).some((k) => pos.cells[k] !== 0)),
   );
   if (near.length) return pick(near, rng);
   if (safe.length) {
-    const center = safe.filter((m) => edgeDistance(pos.size, m) >= 1);
+    const center = safe.filter((m) => edgeDistance(pos, m) >= 1);
     return pick(center.length ? center : safe, rng);
   }
   return pick(moves, rng);
@@ -186,12 +187,12 @@ export function scoreMove(pos: Position, m: number, color: Color, rng: Rng = Mat
   }
 
   // 모양: 숨구멍 많고, 가장자리 피하기, 상대 숨구멍 줄이기
-  const mine = getGroup(after.cells, after.size, m);
+  const mine = getGroup(after.cells, after, m);
   score += Math.min(mine.liberties.length, 4) * 6;
-  if (edgeDistance(pos.size, m) === 0) score -= 12;
-  for (const n of neighbors(pos.size, m)) {
+  if (edgeDistance(pos, m) === 0) score -= 12;
+  for (const n of neighbors(pos, m)) {
     if (after.cells[n] === opp) {
-      score += 12 / getGroup(after.cells, after.size, n).liberties.length;
+      score += 12 / getGroup(after.cells, after, n).liberties.length;
     }
   }
   return score + rng() * 4;

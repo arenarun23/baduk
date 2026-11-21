@@ -5,10 +5,15 @@ const CELL = 100;
 const PAD = 64;
 const STONE_R = 46;
 
-const STAR_POINTS: Record<number, [number, number][]> = {
-  7: [[3, 3]],
-  9: [[2, 2], [6, 2], [4, 4], [2, 6], [6, 6]],
-};
+/** 화점(별 자리): 7줄은 가운데, 9줄 이상은 네 귀(가장자리에서 2~3줄 안)와 가운데(홀수 줄일 때) */
+function starPoints(w: number, h: number): [number, number][] {
+  const m = Math.min(w, h);
+  if (m < 7) return [];
+  const center: [number, number][] = w % 2 && h % 2 ? [[(w - 1) / 2, (h - 1) / 2]] : [];
+  if (m < 9) return center;
+  const e = m >= 12 ? 3 : 2;
+  return [[e, e], [w - 1 - e, e], [e, h - 1 - e], [w - 1 - e, h - 1 - e], ...center];
+}
 
 export interface CapturedStone {
   i: number;
@@ -16,7 +21,10 @@ export interface CapturedStone {
 }
 
 interface Props {
-  size: number;
+  /** 가로 줄 수 */
+  w: number;
+  /** 세로 줄 수 */
+  h: number;
   cells: Cell[];
   onPlay?: (i: number) => void;
   marks?: Record<number, MarkKind>;
@@ -32,7 +40,8 @@ interface Props {
 }
 
 export function Board({
-  size,
+  w,
+  h,
   cells,
   onPlay,
   marks = {},
@@ -44,18 +53,20 @@ export function Board({
   ghost = 1,
 }: Props) {
   const [hover, setHover] = useState<number | null>(null);
-  const span = (size - 1) * CELL;
-  const full = span + PAD * 2;
-  const pt = (i: number) => ({ x: PAD + (i % size) * CELL, y: PAD + Math.floor(i / size) * CELL });
+  const spanX = (w - 1) * CELL;
+  const spanY = (h - 1) * CELL;
+  const fullX = spanX + PAD * 2;
+  const fullY = spanY + PAD * 2;
+  const pt = (i: number) => ({ x: PAD + (i % w) * CELL, y: PAD + Math.floor(i / w) * CELL });
   const dangerSet = new Set(danger);
   const interactive = !!onPlay && !disabled;
 
   return (
     <svg
       className={`board ${interactive ? 'interactive' : ''}`}
-      viewBox={`0 0 ${full} ${full}`}
+      viewBox={`0 0 ${fullX} ${fullY}`}
       role="grid"
-      aria-label={`${size}줄 바둑판`}
+      aria-label={w === h ? `${w}줄 바둑판` : `가로 ${w}줄 세로 ${h}줄 바둑판`}
     >
       <defs>
         <radialGradient id="g-black" cx="35%" cy="30%" r="70%">
@@ -73,15 +84,17 @@ export function Board({
         </filter>
       </defs>
 
-      <rect x="0" y="0" width={full} height={full} rx="28" className="board-wood" />
+      <rect x="0" y="0" width={fullX} height={fullY} rx="28" className="board-wood" />
 
-      {Array.from({ length: size }, (_, k) => (
-        <g key={k} className="board-line">
-          <line x1={PAD} y1={PAD + k * CELL} x2={PAD + span} y2={PAD + k * CELL} />
-          <line x1={PAD + k * CELL} y1={PAD} x2={PAD + k * CELL} y2={PAD + span} />
-        </g>
-      ))}
-      {(STAR_POINTS[size] ?? []).map(([x, y]) => (
+      <g className="board-line">
+        {Array.from({ length: h }, (_, k) => (
+          <line key={`r${k}`} x1={PAD} y1={PAD + k * CELL} x2={PAD + spanX} y2={PAD + k * CELL} />
+        ))}
+        {Array.from({ length: w }, (_, k) => (
+          <line key={`c${k}`} x1={PAD + k * CELL} y1={PAD} x2={PAD + k * CELL} y2={PAD + spanY} />
+        ))}
+      </g>
+      {starPoints(w, h).map(([x, y]) => (
         <circle key={`${x}-${y}`} cx={PAD + x * CELL} cy={PAD + y * CELL} r="9" className="star-point" />
       ))}
 
@@ -159,7 +172,7 @@ export function Board({
               height={CELL}
               className="hit"
               role="gridcell"
-              aria-label={`${(i % size) + 1}번째 줄, 위에서 ${Math.floor(i / size) + 1}번째`}
+              aria-label={`왼쪽에서 ${(i % w) + 1}번째, 위에서 ${Math.floor(i / w) + 1}번째`}
               onPointerEnter={(e) => e.pointerType === 'mouse' && setHover(i)}
               onPointerLeave={() => setHover((h) => (h === i ? null : h))}
               onClick={() => onPlay?.(i)}

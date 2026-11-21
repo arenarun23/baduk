@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { BLACK, WHITE, emptyPosition, getGroup, legalMoves, parseRows, play, toIndex } from './go';
+import { BLACK, WHITE, emptyPosition, getGroup, legalMoves, neighbors, parseRows, play, toIndex } from './go';
 import { canCapture, chooseMove, type Level } from './ai';
 import { lessons } from '../data/lessons';
 import { quiz } from '../data/quiz';
 import { countAnswer, defaultChoices, oxAnswer, solutions, type Step } from '../data/steps';
 
-const at = (size: number, x: number, y: number) => toIndex(size, x, y);
+const at = (size: number, x: number, y: number) => toIndex({ w: size, h: size }, x, y);
 
 function seeded(seed: number) {
   return () => {
@@ -17,9 +17,9 @@ function seeded(seed: number) {
 describe('rules', () => {
   it('counts liberties in center, edge and corner', () => {
     const { pos } = parseRows(['X.X..', '.....', '..X..', '.....', '.....']);
-    expect(getGroup(pos.cells, 5, at(5, 2, 2)).liberties).toHaveLength(4);
-    expect(getGroup(pos.cells, 5, at(5, 2, 0)).liberties).toHaveLength(3);
-    expect(getGroup(pos.cells, 5, at(5, 0, 0)).liberties).toHaveLength(2);
+    expect(getGroup(pos.cells, pos, at(5, 2, 2)).liberties).toHaveLength(4);
+    expect(getGroup(pos.cells, pos, at(5, 2, 0)).liberties).toHaveLength(3);
+    expect(getGroup(pos.cells, pos, at(5, 0, 0)).liberties).toHaveLength(2);
   });
 
   it('captures a surrounded stone and counts it', () => {
@@ -56,6 +56,52 @@ describe('rules', () => {
     const b = play(w.pos, at(5, 0, 4), BLACK);
     if (!b.ok) throw new Error();
     expect(play(b.pos, at(5, 1, 1), WHITE).ok).toBe(true);
+  });
+});
+
+describe('rectangular boards (14×15)', () => {
+  it('uses width for rows and height for columns', () => {
+    const pos = emptyPosition(14, 15);
+    expect(pos.cells).toHaveLength(14 * 15);
+    const d = { w: 14, h: 15 };
+    // 오른쪽 아래 귀 (13,14): 이웃은 위쪽과 왼쪽 2개뿐
+    expect(neighbors(d, toIndex(d, 13, 14)).sort((a, b) => a - b)).toEqual([toIndex(d, 13, 13), toIndex(d, 12, 14)]);
+    // 오른쪽 끝 (13,0) 의 오른쪽은 다음 줄로 넘어가지 않는다
+    expect(neighbors(d, toIndex(d, 13, 0))).not.toContain(toIndex(d, 0, 1));
+  });
+
+  it('captures in the bottom-right corner', () => {
+    let pos = emptyPosition(14, 15);
+    const d = { w: 14, h: 15 };
+    for (const [m, c] of [[toIndex(d, 13, 14), WHITE], [toIndex(d, 12, 14), BLACK]] as const) {
+      const r = play(pos, m, c);
+      if (!r.ok) throw new Error();
+      pos = r.pos;
+    }
+    const r = play(pos, toIndex(d, 13, 13), BLACK);
+    expect(r.ok && r.captured).toEqual([toIndex(d, 13, 14)]);
+  });
+
+  it('parses non-square rows', () => {
+    const { pos } = parseRows(['X..', '...', '..O', '...']);
+    expect([pos.w, pos.h]).toEqual([3, 4]);
+    expect(pos.cells[toIndex(pos, 2, 2)]).toBe(WHITE);
+  });
+
+  it('every AI plays legal moves on 12×12 and 14×15', () => {
+    for (const [w, h] of [[12, 12], [14, 15]]) {
+      for (const level of ['turtle', 'rabbit', 'tiger'] as Level[]) {
+        const rng = seeded(w * 31 + h);
+        let pos = emptyPosition(w, h);
+        for (let t = 0; t < 30; t++) {
+          const m = chooseMove(pos, pos.toPlay, level, rng);
+          if (m === null) break;
+          const r = play(pos, m);
+          expect(r.ok).toBe(true);
+          if (r.ok) pos = r.pos;
+        }
+      }
+    }
   });
 });
 
