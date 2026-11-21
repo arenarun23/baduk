@@ -536,18 +536,30 @@ button {
 .option-row {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 .option-label {
+  flex: none;
+  width: 4.6em;
   font-size: 20px;
-  min-width: 64px;
+  white-space: nowrap;
+}
+/* 고르기 버튼: 5칸 같은 폭으로 한 줄에 (바둑판 5개가 한 줄, 먼저 잡기 3개는 같은 칸에 맞춰 정렬) */
+.pills {
+  flex: 1;
+  min-width: 0;
+  max-width: 480px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
 }
 .pill {
   border: 3px solid #eadcc0;
   border-radius: 999px;
-  padding: 10px 22px;
+  min-height: 44px;
+  padding: 8px 2px;
   font-size: 20px;
+  white-space: nowrap;
   background: var(--card);
 }
 .pill.on {
@@ -688,7 +700,9 @@ button {
   .game-actions .btn { font-size: 16px; padding: 10px 13px; }
   .player { padding: 6px; font-size: 16px; }
   .caps { font-size: 15px; }
-  .pill { padding: 8px 16px; font-size: 18px; }
+  .pill { font-size: 17px; }
+  .option-label { font-size: 17px; }
+  .pills { gap: 5px; }
   .btn.big { font-size: 20px; padding: 13px 22px; }
   .bubble { font-size: 18px; padding: 10px 46px 10px 14px; }
   .step-actions { min-height: 52px; }
@@ -769,6 +783,10 @@ button {
     column-gap: 36px;
     justify-content: center;
   }
+  .options .option-row {
+    flex: 1 1 400px;
+    max-width: 560px;
+  }
 }
 
 /* 낮은 화면(폰 가로, 작은 노트북 창) */
@@ -800,7 +818,8 @@ button {
   .ai-emoji { font-size: 32px; }
   .ai-name { font-size: 18px; }
   .ai-desc { font-size: 13px; }
-  .pill { padding: 6px 14px; font-size: 16px; }
+  .pill { min-height: 40px; padding: 4px 2px; font-size: 16px; }
+  .options { gap: 4px; }
   .option-label { font-size: 16px; }
   .celebrate { font-size: 56px; }
   .stars-big { font-size: 48px; }
@@ -813,4 +832,11 @@ button {
   .ai-desc { display: none; }
   .ai-card .ai-emoji { font-size: 32px; }
   .ai-card { padding: 6px 12px; }
+}
+
+/* 아주 좁은 폰(320px): 고르기 글자가 잘리지 않게 */
+@media (max-width: 359px) {
+  .option-label { width: 4.2em; font-size: 15px; }
+  .pill { font-size: 15px; }
+  .pills { gap: 4px; }
 }

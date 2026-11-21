@@ -73,19 +73,23 @@ function Setup({ progress, onStart }: { progress: Progress; onStart: (s: Setting
       <div className="options">
       <div className="option-row">
         <span className="option-label">바둑판</span>
-        {BOARDS.map((b) => (
-          <button key={b.label} className={`pill ${board === b ? 'on' : ''}`} onClick={() => setBoard(b)}>
-            {b.label}
-          </button>
-        ))}
+        <div className="pills">
+          {BOARDS.map((b) => (
+            <button key={b.label} className={`pill ${board === b ? 'on' : ''}`} onClick={() => setBoard(b)}>
+              {b.label}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="option-row">
         <span className="option-label">먼저 잡기</span>
-        {([1, 3, 5] as const).map((t) => (
-          <button key={t} className={`pill ${target === t ? 'on' : ''}`} onClick={() => setTarget(t)}>
-            {t}개
-          </button>
-        ))}
+        <div className="pills">
+          {([1, 3, 5] as const).map((t) => (
+            <button key={t} className={`pill ${target === t ? 'on' : ''}`} onClick={() => setTarget(t)}>
+              {t}개
+            </button>
+          ))}
+        </div>
       </div>
       </div>
       <div className="row">
