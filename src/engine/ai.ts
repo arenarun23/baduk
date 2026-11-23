@@ -165,23 +165,50 @@ function rabbitMove(pos: Position, color: Color, rng: Rng): number | null {
 
 // ---------- 🐯 호랑이 ----------
 
-export function scoreMove(pos: Position, m: number, color: Color, rng: Rng = Math.random): number {
+/**
+ * 큰 판(13줄 이상)에서 호랑이가 너무 오래 생각하지 않도록, 둔 자리에서 멀리 떨어진 무리의
+ * 수읽기 결과는 한 번만 계산해 다시 쓴다. (먼 곳의 무리는 이번 수로 바뀌지 않으므로)
+ */
+type ReadCache = Map<string, boolean>;
+const BIG_BOARD = 12 * 12;
+
+/** 무리의 돌·숨구멍이 모두 m 에서 3칸 이상 떨어져 있나 */
+function farFrom({ w }: Dims, m: number, cells: number[]): boolean {
+  const mx = m % w;
+  const my = Math.floor(m / w);
+  return cells.every((c) => Math.max(Math.abs((c % w) - mx), Math.abs(Math.floor(c / w) - my)) > 2);
+}
+
+export function scoreMove(
+  pos: Position,
+  m: number,
+  color: Color,
+  rng: Rng = Math.random,
+  cache?: ReadCache,
+): number {
   const r = play(pos, m, color);
   if (!r.ok) return -Infinity;
   const opp = other(color);
   const after = r.pos;
   let score = r.captured.length * 1000;
+  const read = (kind: 'cap' | 'esc', g: { stones: number[]; liberties: number[] }, fn: () => boolean) => {
+    if (!cache || r.captured.length || !farFrom(pos, m, [...g.stones, ...g.liberties])) return fn();
+    const key = `${kind}${Math.min(...g.stones)}`;
+    let v = cache.get(key);
+    if (v === undefined) cache.set(key, (v = fn()));
+    return v;
+  };
 
   // 내 돌 무리가 잡힐 위험 (상대 차례)
   for (const g of allGroups(after, color)) {
     if (g.liberties.length > 2) continue;
-    if (canCapture(after, g.stones[0], opp)) score -= 700 * g.stones.length + 200;
+    if (read('cap', g, () => canCapture(after, g.stones[0], opp))) score -= 700 * g.stones.length + 200;
   }
 
   // 상대 돌 무리를 몰아붙이기
   for (const g of allGroups(after, opp)) {
     if (g.liberties.length > 2) continue;
-    const doomed = !canEscape(after, g.stones[0], color);
+    const doomed = !read('esc', g, () => canEscape(after, g.stones[0], color));
     if (doomed) score += 400 * g.stones.length + 100;
     else if (g.liberties.length === 1) score += 30;
   }
@@ -203,8 +230,9 @@ function tigerMove(pos: Position, color: Color, rng: Rng): number | null {
   if (!moves.length) return null;
   let best = moves[0];
   let bestScore = -Infinity;
+  const cache: ReadCache | undefined = pos.w * pos.h > BIG_BOARD ? new Map() : undefined;
   for (const m of moves) {
-    const s = scoreMove(pos, m, color, rng);
+    const s = scoreMove(pos, m, color, rng, cache);
     if (s > bestScore) {
       bestScore = s;
       best = m;
