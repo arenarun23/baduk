@@ -27,7 +27,7 @@ interface Settings {
 const LEVELS: Level[] = ['turtle', 'rabbit', 'tiger'];
 
 /** 먼저 몇 개 잡으면 이길까 */
-const TARGETS = [1, 3, 5, 7, 9, 10];
+const TARGETS = [1, 3, 5, 7, 9, 10, 15, 20];
 
 interface BoardSize {
   w: number;
@@ -42,6 +42,9 @@ const BOARDS: BoardSize[] = [
   { w: 9, h: 9, label: '9줄' },
   { w: 12, h: 12, label: '12줄' },
   { w: 15, h: 15, label: '15줄' },
+  { w: 17, h: 17, label: '17줄' },
+  { w: 19, h: 19, label: '19줄' },
+  { w: 24, h: 24, label: '24줄' },
 ];
 
 const AI_LINES: Record<Level, { capture: string; lose: string; win: string }> = {
@@ -76,17 +79,18 @@ function Setup({ progress, onStart }: { progress: Progress; onStart: (s: Setting
       <div className="options">
       <div className="option-row">
         <span className="option-label">바둑판</span>
-        <div className="pills">
+        <div className="pills eight">
           {BOARDS.map((b) => (
             <button key={b.label} className={`pill ${board === b ? 'on' : ''}`} onClick={() => setBoard(b)}>
-              {b.label}
+              {b.w}
+              <span className="unit">줄</span>
             </button>
           ))}
         </div>
       </div>
       <div className="option-row">
         <span className="option-label">먼저 잡기</span>
-        <div className="pills six">
+        <div className="pills eight">
           {TARGETS.map((t) => (
             <button key={t} className={`pill ${target === t ? 'on' : ''}`} onClick={() => setTarget(t)}>
               {t}

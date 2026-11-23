@@ -88,8 +88,8 @@ describe('rectangular boards (14×15)', () => {
     expect(pos.cells[toIndex(pos, 2, 2)]).toBe(WHITE);
   });
 
-  it('every AI plays legal moves on 12×12 and 14×15', () => {
-    for (const [w, h] of [[12, 12], [14, 15]]) {
+  it('every AI plays legal moves on 12×12, 14×15, 17×17, 19×19 and 24×24', () => {
+    for (const [w, h] of [[12, 12], [14, 15], [17, 17], [19, 19], [24, 24]]) {
       for (const level of ['turtle', 'rabbit', 'tiger'] as Level[]) {
         const rng = seeded(w * 31 + h);
         let pos = emptyPosition(w, h);

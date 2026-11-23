@@ -5,14 +5,20 @@ const CELL = 100;
 const PAD = 64;
 const STONE_R = 46;
 
-/** 화점(별 자리): 7줄은 가운데, 9줄 이상은 네 귀(가장자리에서 2~3줄 안)와 가운데(홀수 줄일 때) */
+/** 화점(별 자리): 7줄은 가운데, 9줄 이상은 네 귀(가장자리에서 2~3줄 안)와 가운데(홀수 줄일 때), 17줄 이상 홀수 판은 변 가운데도 */
 function starPoints(w: number, h: number): [number, number][] {
   const m = Math.min(w, h);
   if (m < 7) return [];
   const center: [number, number][] = w % 2 && h % 2 ? [[(w - 1) / 2, (h - 1) / 2]] : [];
   if (m < 9) return center;
   const e = m >= 12 ? 3 : 2;
-  return [[e, e], [w - 1 - e, e], [e, h - 1 - e], [w - 1 - e, h - 1 - e], ...center];
+  const corners: [number, number][] = [[e, e], [w - 1 - e, e], [e, h - 1 - e], [w - 1 - e, h - 1 - e]];
+  // 17줄 이상 홀수 판(19줄 등): 변의 가운데 화점 4개도 (모두 9개)
+  const sides: [number, number][] =
+    m >= 17 && center.length
+      ? [[(w - 1) / 2, e], [(w - 1) / 2, h - 1 - e], [e, (h - 1) / 2], [w - 1 - e, (h - 1) / 2]]
+      : [];
+  return [...corners, ...sides, ...center];
 }
 
 export interface CapturedStone {
