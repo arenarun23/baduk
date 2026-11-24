@@ -47,6 +47,37 @@ interface Props {
   highlight?: number[];
 }
 
+/**
+ * 돌 한 개. 그라데이션을 쓰지 않고 단색으로만 그린다.
+ * 삼성 인터넷 '어둡게 보기'(강제 다크 모드)가 그라데이션·이미지는 색을 뒤집어
+ * 흰 돌이 검게 보이지만, 단색은 그대로 두기 때문이다.
+ */
+function Stone({ x, y, black, shadow = false }: { x: number; y: number; black: boolean; shadow?: boolean }) {
+  return (
+    <g filter={shadow ? 'url(#shadow)' : undefined}>
+      <circle cx={x} cy={y} r={STONE_R} className={black ? 'stone-black' : 'stone-white'} />
+      <circle
+        cx={x - STONE_R * 0.32}
+        cy={y - STONE_R * 0.36}
+        r={STONE_R * 0.3}
+        className={black ? 'stone-shine-black' : 'stone-shine-white'}
+      />
+    </g>
+  );
+}
+
+/**
+ * 점수판의 작은 돌 표시. 컬러 이모지(⚫⚪)를 쓴다 — 삼성 인터넷 '어둡게 보기'가
+ * 작은 SVG·배경색은 색을 뒤집지만 컬러 이모지 글자는 그대로 두기 때문이다.
+ */
+export function StoneIcon({ black }: { black: boolean }) {
+  return (
+    <span className="stone-icon" aria-hidden="true">
+      {black ? '⚫' : '⚪'}
+    </span>
+  );
+}
+
 export function Board({
   w,
   h,
@@ -78,16 +109,6 @@ export function Board({
       aria-label={w === h ? `${w}줄 바둑판` : `가로 ${w}줄 세로 ${h}줄 바둑판`}
     >
       <defs>
-        <radialGradient id="g-black" cx="35%" cy="30%" r="70%">
-          <stop offset="0%" stopColor="#6b6b6b" />
-          <stop offset="45%" stopColor="#262626" />
-          <stop offset="100%" stopColor="#050505" />
-        </radialGradient>
-        <radialGradient id="g-white" cx="35%" cy="30%" r="75%">
-          <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="70%" stopColor="#ecebe6" />
-          <stop offset="100%" stopColor="#c9c6bc" />
-        </radialGradient>
         <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
           <feDropShadow dx="3" dy="5" stdDeviation="3" floodOpacity="0.35" />
         </filter>
@@ -144,7 +165,7 @@ export function Board({
         const { x, y } = pt(i);
         return (
           <g key={`s${i}-${c}`} className="stone-in">
-            <circle cx={x} cy={y} r={STONE_R} fill={`url(#g-${c === 1 ? 'black' : 'white'})`} filter="url(#shadow)" />
+            <Stone x={x} y={y} black={c === 1} shadow />
             {lastMove === i && <circle cx={x} cy={y} r="12" className={c === 1 ? 'last-on-black' : 'last-on-white'} />}
             {dangerSet.has(i) && <circle cx={x} cy={y} r={STONE_R + 5} className="danger-ring" />}
             {highlight.includes(i) && <circle cx={x} cy={y} r={STONE_R + 6} className="win-ring" />}
@@ -158,7 +179,7 @@ export function Board({
         const { x, y } = pt(i);
         return (
           <g key={`c${animKey}-${i}`} className="stone-out" style={{ transformOrigin: `${x}px ${y}px` }}>
-            <circle cx={x} cy={y} r={STONE_R} fill={`url(#g-${color === 1 ? 'black' : 'white'})`} />
+            <Stone x={x} y={y} black={color === 1} />
             <text x={x} y={y + 16} textAnchor="middle" className="pop-star">✨</text>
           </g>
         );

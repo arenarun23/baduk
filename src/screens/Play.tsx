@@ -12,7 +12,7 @@ import {
   type Position,
 } from '../engine/go';
 import { AI_INFO, chooseMove, type Level } from '../engine/ai';
-import { Board, type CapturedStone } from '../components/Board';
+import { Board, StoneIcon, type CapturedStone } from '../components/Board';
 import { Teacher } from '../components/Teacher';
 import { saveProgress, type Progress } from '../lib/progress';
 import { sounds } from '../lib/sound';
@@ -296,7 +296,7 @@ function Game({
     <div className="screen game">
       <div className="scoreboard">
         <div className={`player ${pos.toPlay === BLACK && !over ? 'turn' : ''}`}>
-          <span className="stone-icon black" /> 나
+          <StoneIcon black /> 나
           <span className="caps">
             {target <= 5 && '●'.repeat(Math.min(pos.captures[BLACK], target))}
             <small>
@@ -306,7 +306,7 @@ function Game({
         </div>
         <div className="vs">VS</div>
         <div className={`player ${pos.toPlay === WHITE && !over ? 'turn' : ''}`}>
-          <span className="stone-icon white" /> {ai.emoji} {ai.name}
+          <StoneIcon black={false} /> {ai.emoji} {ai.name}
           <span className="caps">
             {target <= 5 && '○'.repeat(Math.min(pos.captures[WHITE], target))}
             <small>
