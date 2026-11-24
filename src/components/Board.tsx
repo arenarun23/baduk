@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { Cell, Color, MarkKind } from '../engine/go';
 
 const CELL = 100;
@@ -49,33 +49,34 @@ interface Props {
 
 /**
  * 삼성 인터넷은 다크 모드에서 페이지 색을 강제로 바꾼다(검은 돌 → 회색, 흰 돌 → 연회색).
- * 개발자가 끌 방법이 없지만 컬러 이모지 글자는 건드리지 않으므로, 그때만 돌을 ⚫⚪ 이모지로 그린다.
+ * 이때 페이지에는 '밝은 화면'으로 알려 주므로 다크 모드인지 알 수 없고, 개발자가 끌 방법도 없다.
+ * 컬러 이모지 글자는 건드리지 않으므로 삼성 인터넷에서는 밝기와 관계없이 돌을 ⚫⚪ 이모지로 그린다.
+ * (갤럭시 탭은 '데스크톱 버전'으로 열려 주소 표시에 SamsungBrowser 가 없을 수 있어,
+ *  터치되는 리눅스 데스크톱 표시도 같은 경우로 본다.)
  */
-const DARK_QUERY = '(prefers-color-scheme: dark)';
-function isSamsungDark(): boolean {
-  if (typeof navigator === 'undefined' || !/SamsungBrowser/i.test(navigator.userAgent)) return false;
-  try {
-    return matchMedia(DARK_QUERY).matches;
-  } catch {
-    return false;
-  }
+function isSamsungInternet(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent;
+  if (/SamsungBrowser/i.test(ua)) return true;
+  return /X11; Linux/.test(ua) && !/CrOS/.test(ua) && navigator.maxTouchPoints > 0;
 }
 function useEmojiStones(): boolean {
-  const [on, setOn] = useState(isSamsungDark);
-  useEffect(() => {
-    if (!/SamsungBrowser/i.test(navigator.userAgent)) return;
-    const mq = matchMedia(DARK_QUERY);
-    const f = () => setOn(isSamsungDark());
-    mq.addEventListener?.('change', f);
-    return () => mq.removeEventListener?.('change', f);
-  }, []);
-  // 시험용: 주소에 ?emoji=1 을 붙이면 다른 브라우저에서도 이모지 돌
-  return on || /[?&]emoji=1/.test(location.search + location.hash);
+  const [on] = useState(() => {
+    try {
+      const q = location.search + location.hash;
+      if (/[?&]emoji=0/.test(q)) return false;
+      // 시험용: 주소에 ?emoji=1 을 붙이면 다른 브라우저에서도 이모지 돌
+      return isSamsungInternet() || /[?&]emoji=1/.test(q);
+    } catch {
+      return false;
+    }
+  });
+  return on;
 }
 
 /**
  * 돌 한 개. 보통은 단색 원(+작은 광택) — 그라데이션은 강제 다크 모드에서 색이 뒤집혀서 쓰지 않는다.
- * emoji 가 켜지면 ⚫⚪ 컬러 이모지로 그린다(삼성 인터넷 다크 모드).
+ * emoji 가 켜지면 ⚫⚪ 컬러 이모지로 그린다(삼성 인터넷).
  */
 function Stone({ x, y, black, shadow = false, emoji = false }: { x: number; y: number; black: boolean; shadow?: boolean; emoji?: boolean }) {
   if (emoji) {
