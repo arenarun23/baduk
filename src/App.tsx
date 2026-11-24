@@ -3,6 +3,7 @@ import { lessons } from './data/lessons';
 import { quiz } from './data/quiz';
 import { loadProgress, type Progress } from './lib/progress';
 import { isMuted, setMuted } from './lib/sound';
+import { isMusicOn, setMusicOn } from './lib/bgm';
 import { go, useRoute } from './router';
 import { LessonList, LessonScreen } from './screens/Learn';
 import { QuizScreen, starsFor } from './screens/Quiz';
@@ -14,6 +15,7 @@ export default function App() {
   const route = useRoute();
   const [progress, setProgress] = useState<Progress>(loadProgress);
   const [muted, setMutedState] = useState(isMuted);
+  const [music, setMusicState] = useState(isMusicOn);
 
   let page: React.ReactNode;
   switch (route[0]) {
@@ -52,16 +54,31 @@ export default function App() {
         <button className="logo" onClick={() => go('/')}>
           <span className="logo-stones">⚫⚪</span> 꼬마 바둑 교실
         </button>
-        <button
-          className="icon-btn"
-          onClick={() => {
-            setMuted(!muted);
-            setMutedState(!muted);
-          }}
-          aria-label={muted ? '소리 켜기' : '소리 끄기'}
-        >
-          {muted ? '🔇' : '🔔'}
-        </button>
+        <div className="top-right">
+          <button
+            className={`icon-btn ${music ? '' : 'off'}`}
+            onClick={() => {
+              setMusicOn(!music);
+              setMusicState(!music);
+            }}
+            aria-label={music ? '배경 음악 끄기' : '배경 음악 켜기'}
+            aria-pressed={music}
+            title="배경 음악"
+          >
+            🎵
+          </button>
+          <button
+            className="icon-btn"
+            onClick={() => {
+              setMuted(!muted);
+              setMutedState(!muted);
+            }}
+            aria-label={muted ? '효과음 켜기' : '효과음 끄기'}
+            title="효과음"
+          >
+            {muted ? '🔇' : '🔔'}
+          </button>
+        </div>
       </header>
       <main>{page}</main>
     </div>

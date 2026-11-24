@@ -89,6 +89,16 @@ button {
   font-size: 22px;
   flex: none;
 }
+.top-right {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+/* 배경 음악 꺼짐: 흐리게 + 사선 */
+.icon-btn.off {
+  opacity: 0.45;
+  background: linear-gradient(135deg, transparent 47%, var(--red) 47% 53%, transparent 53%), var(--card);
+}
 .icon-btn.placeholder {
   visibility: hidden;
 }
@@ -939,4 +949,15 @@ button {
 /* 아주 낮은 폰 가로(높이 400px 이하): AI 설명 한 줄을 숨겨 대국 설정이 한 화면에 */
 @media (min-aspect-ratio: 5/4) and (max-height: 400px) {
   .ai-desc { display: none; }
+}
+
+/* 작은 폰: 위쪽 줄에 버튼이 3개(뒤로·음악·효과음)라 제목이 잘리지 않게 조금 작게 */
+@media (max-width: 400px) {
+  .topbar { gap: 6px; }
+  .topbar .icon-btn { width: 42px; height: 42px; font-size: 17px; }
+  .top-right { gap: 6px; }
+  .logo { font-size: 18px; padding: 0 2px; }
+}
+@media (max-width: 340px) {
+  .logo { font-size: 16px; }
 }

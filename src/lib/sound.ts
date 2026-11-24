@@ -1,6 +1,7 @@
 // 효과음 (소리 파일 없이 Web Audio로 직접 만들어요)
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
+let comp: DynamicsCompressorNode | null = null;
 let noiseBuf: AudioBuffer | null = null;
 let muted = false;
 try {
@@ -20,22 +21,29 @@ export function setMuted(v: boolean) {
   if (!v) sounds.tap();
 }
 
-function audio(): { a: AudioContext; out: GainNode } | null {
-  if (muted) return null;
+/** 효과음·배경 음악이 함께 쓰는 오디오 (처음 부를 때 만듦). out = 소리 찢어짐을 막는 압축기 */
+export function getAudio(): { a: AudioContext; out: AudioNode } | null {
   try {
     if (!ctx) {
       ctx = new AudioContext();
+      // 큰 소리가 겹쳐도 찢어지지 않게
+      comp = ctx.createDynamicsCompressor();
+      comp.connect(ctx.destination);
       master = ctx.createGain();
       master.gain.value = 0.8;
-      // 큰 소리가 겹쳐도 찢어지지 않게
-      const comp = ctx.createDynamicsCompressor();
-      master.connect(comp).connect(ctx.destination);
+      master.connect(comp);
     }
     if (ctx.state === 'suspended') void ctx.resume();
-    return { a: ctx, out: master! };
+    return { a: ctx, out: comp! };
   } catch {
     return null;
   }
+}
+
+function audio(): { a: AudioContext; out: GainNode } | null {
+  if (muted) return null;
+  const g = getAudio();
+  return g ? { a: g.a, out: master! } : null;
 }
 
 function noise(a: AudioContext): AudioBuffer {
