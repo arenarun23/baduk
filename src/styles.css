@@ -637,13 +637,15 @@ button {
 }
 .stone-icon {
   display: inline-block;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  vertical-align: -4px;
+  font-size: 22px;
+  line-height: 1;
+  vertical-align: -3px;
 }
-.stone-icon.black { background: radial-gradient(circle at 35% 30%, #666, #000); }
-.stone-icon.white { background: radial-gradient(circle at 35% 30%, #fff, #ccc); border: 1px solid #aaa; }
+/* 바둑돌: 단색만 (삼성 인터넷 '어둡게 보기'가 그라데이션을 뒤집어 흰 돌·검은 돌이 헷갈리지 않게) */
+.stone-black { fill: #161616; stroke: #000; stroke-width: 1.5; }
+.stone-white { fill: #f3f2ed; stroke: #a8a395; stroke-width: 2; }
+.stone-shine-black { fill: #4a4a4a; opacity: 0.55; }
+.stone-shine-white { fill: #ffffff; opacity: 0.9; }
 .caps {
   font-size: 18px;
   letter-spacing: 1px;
@@ -934,7 +936,7 @@ button {
   .caps { font-size: 22px; }
   .caps small { font-size: 19px; }
   .vs { font-size: 22px; }
-  .stone-icon { width: 30px; height: 30px; }
+  .stone-icon { font-size: 30px; }
   .teacher-face { font-size: 64px; }
   .bubble { font-size: 26px; }
   .game-actions .btn { font-size: 23px; padding: 14px 24px; }

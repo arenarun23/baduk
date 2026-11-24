@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BLACK, WHITE, type Cell, type Color, type MarkKind } from '../engine/go';
 import { AI_INFO, type Level } from '../engine/ai';
 import { OMOK_AI_DESC, OMOK_SIZE, chooseOmokMove, winningLine, winningMoves } from '../engine/omok';
-import { Board } from '../components/Board';
+import { Board, StoneIcon } from '../components/Board';
 import { Teacher } from '../components/Teacher';
 import { saveProgress, type Progress } from '../lib/progress';
 import { sounds } from '../lib/sound';
@@ -181,11 +181,11 @@ function Game({ level, onProgress, onExit }: { level: Level; onProgress: (p: Pro
     <div className="screen game">
       <div className="scoreboard">
         <div className={`player ${toPlay === BLACK && !over ? 'turn' : ''}`}>
-          <span className="stone-icon black" /> 나
+          <StoneIcon black /> 나
         </div>
         <div className="vs">VS</div>
         <div className={`player ${toPlay === WHITE && !over ? 'turn' : ''}`}>
-          <span className="stone-icon white" /> {ai.emoji} {ai.name}
+          <StoneIcon black={false} /> {ai.emoji} {ai.name}
         </div>
       </div>
 
