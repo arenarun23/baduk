@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Cell, Color, MarkKind } from '../engine/go';
 
 const CELL = 100;
@@ -48,11 +48,43 @@ interface Props {
 }
 
 /**
- * 돌 한 개. 그라데이션을 쓰지 않고 단색으로만 그린다.
- * 삼성 인터넷 '어둡게 보기'(강제 다크 모드)가 그라데이션·이미지는 색을 뒤집어
- * 흰 돌이 검게 보이지만, 단색은 그대로 두기 때문이다.
+ * 삼성 인터넷은 다크 모드에서 페이지 색을 강제로 바꾼다(검은 돌 → 회색, 흰 돌 → 연회색).
+ * 개발자가 끌 방법이 없지만 컬러 이모지 글자는 건드리지 않으므로, 그때만 돌을 ⚫⚪ 이모지로 그린다.
  */
-function Stone({ x, y, black, shadow = false }: { x: number; y: number; black: boolean; shadow?: boolean }) {
+const DARK_QUERY = '(prefers-color-scheme: dark)';
+function isSamsungDark(): boolean {
+  if (typeof navigator === 'undefined' || !/SamsungBrowser/i.test(navigator.userAgent)) return false;
+  try {
+    return matchMedia(DARK_QUERY).matches;
+  } catch {
+    return false;
+  }
+}
+function useEmojiStones(): boolean {
+  const [on, setOn] = useState(isSamsungDark);
+  useEffect(() => {
+    if (!/SamsungBrowser/i.test(navigator.userAgent)) return;
+    const mq = matchMedia(DARK_QUERY);
+    const f = () => setOn(isSamsungDark());
+    mq.addEventListener?.('change', f);
+    return () => mq.removeEventListener?.('change', f);
+  }, []);
+  // 시험용: 주소에 ?emoji=1 을 붙이면 다른 브라우저에서도 이모지 돌
+  return on || /[?&]emoji=1/.test(location.search + location.hash);
+}
+
+/**
+ * 돌 한 개. 보통은 단색 원(+작은 광택) — 그라데이션은 강제 다크 모드에서 색이 뒤집혀서 쓰지 않는다.
+ * emoji 가 켜지면 ⚫⚪ 컬러 이모지로 그린다(삼성 인터넷 다크 모드).
+ */
+function Stone({ x, y, black, shadow = false, emoji = false }: { x: number; y: number; black: boolean; shadow?: boolean; emoji?: boolean }) {
+  if (emoji) {
+    return (
+      <text x={x} y={y} className="stone-emoji" textAnchor="middle" dominantBaseline="central" fontSize={STONE_R * 1.72}>
+        {black ? '⚫' : '⚪'}
+      </text>
+    );
+  }
   return (
     <g filter={shadow ? 'url(#shadow)' : undefined}>
       <circle cx={x} cy={y} r={STONE_R} className={black ? 'stone-black' : 'stone-white'} />
@@ -93,6 +125,7 @@ export function Board({
   highlight = [],
 }: Props) {
   const [hover, setHover] = useState<number | null>(null);
+  const emoji = useEmojiStones();
   const spanX = (w - 1) * CELL;
   const spanY = (h - 1) * CELL;
   const fullX = spanX + PAD * 2;
@@ -165,7 +198,7 @@ export function Board({
         const { x, y } = pt(i);
         return (
           <g key={`s${i}-${c}`} className="stone-in">
-            <Stone x={x} y={y} black={c === 1} shadow />
+            <Stone x={x} y={y} black={c === 1} shadow emoji={emoji} />
             {lastMove === i && <circle cx={x} cy={y} r="12" className={c === 1 ? 'last-on-black' : 'last-on-white'} />}
             {dangerSet.has(i) && <circle cx={x} cy={y} r={STONE_R + 5} className="danger-ring" />}
             {highlight.includes(i) && <circle cx={x} cy={y} r={STONE_R + 6} className="win-ring" />}
@@ -179,7 +212,7 @@ export function Board({
         const { x, y } = pt(i);
         return (
           <g key={`c${animKey}-${i}`} className="stone-out" style={{ transformOrigin: `${x}px ${y}px` }}>
-            <Stone x={x} y={y} black={color === 1} />
+            <Stone x={x} y={y} black={color === 1} emoji={emoji} />
             <text x={x} y={y + 16} textAnchor="middle" className="pop-star">✨</text>
           </g>
         );

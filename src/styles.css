@@ -646,6 +646,7 @@ button {
 .stone-white { fill: #f3f2ed; stroke: #a8a395; stroke-width: 2; }
 .stone-shine-black { fill: #4a4a4a; opacity: 0.55; }
 .stone-shine-white { fill: #ffffff; opacity: 0.9; }
+.stone-emoji { font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'SamsungColorEmoji', sans-serif; pointer-events: none; user-select: none; }
 .caps {
   font-size: 18px;
   letter-spacing: 1px;
