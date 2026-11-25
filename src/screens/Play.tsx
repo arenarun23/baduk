@@ -27,7 +27,8 @@ interface Settings {
 const LEVELS: Level[] = ['turtle', 'rabbit', 'tiger'];
 
 /** 먼저 몇 개 잡으면 이길까 */
-const TARGETS = [1, 3, 5, 7, 9, 10, 15, 20];
+/** 0 = 잡기 목표 없이 끝까지 (둘 다 둘 곳이 없으면 끝, 더 많이 잡은 쪽이 승리) */
+const TARGETS = [0, 1, 3, 5, 7, 9, 10, 15, 20];
 
 interface BoardSize {
   w: number;
@@ -90,7 +91,7 @@ function Setup({ progress, onStart }: { progress: Progress; onStart: (s: Setting
       </div>
       <div className="option-row">
         <span className="option-label">먼저 잡기</span>
-        <div className="pills eight">
+        <div className="pills nine">
           {TARGETS.map((t) => (
             <button key={t} className={`pill ${target === t ? 'on' : ''}`} onClick={() => setTarget(t)}>
               {t}
@@ -130,7 +131,9 @@ function Game({
   const [animKey, setAnimKey] = useState(0);
   const [passes, setPasses] = useState(0);
   const [over, setOver] = useState<Over | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(
+    target === 0 ? '끝까지 둬요! 더 많이 잡으면 이겨요.' : null,
+  );
   const [hint, setHint] = useState<number | null>(null);
   const [helper, setHelper] = useState(true);
   const recorded = useRef(false);
@@ -166,7 +169,7 @@ function Game({
     } else {
       setCaptured([]);
     }
-    if (r.pos.captures[color] >= target) {
+    if (target > 0 && r.pos.captures[color] >= target) {
       finish({ winner: color, reason: 'target' });
     } else if (helper) {
       // 새로 단수가 된 돌이 있으면 소리로 알려 주기
@@ -298,9 +301,10 @@ function Game({
         <div className={`player ${pos.toPlay === BLACK && !over ? 'turn' : ''}`}>
           <StoneIcon black /> 나
           <span className="caps">
-            {target <= 5 && '●'.repeat(Math.min(pos.captures[BLACK], target))}
+            {target > 0 && target <= 5 && '●'.repeat(Math.min(pos.captures[BLACK], target))}
             <small>
-              {pos.captures[BLACK]}/{target}
+              {pos.captures[BLACK]}
+              {target > 0 && `/${target}`}
             </small>
           </span>
         </div>
@@ -308,9 +312,10 @@ function Game({
         <div className={`player ${pos.toPlay === WHITE && !over ? 'turn' : ''}`}>
           <StoneIcon black={false} /> {ai.emoji} {ai.name}
           <span className="caps">
-            {target <= 5 && '○'.repeat(Math.min(pos.captures[WHITE], target))}
+            {target > 0 && target <= 5 && '○'.repeat(Math.min(pos.captures[WHITE], target))}
             <small>
-              {pos.captures[WHITE]}/{target}
+              {pos.captures[WHITE]}
+              {target > 0 && `/${target}`}
             </small>
           </span>
         </div>
